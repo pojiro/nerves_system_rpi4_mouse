@@ -1,0 +1,6 @@
+config BR2_PACKAGE_RASPBERRY_PI_MOUSE
+	bool "raspberry-pi-mouse"
+	help
+	  build and install RaspberryPiMouse driver, rtmouse.ko.
+
+	  https://github.com/rt-net/RaspberryPiMouse
