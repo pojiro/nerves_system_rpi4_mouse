@@ -7,6 +7,7 @@ defmodule NervesSystemRpi4.MixProject do
   @version Path.join(__DIR__, "VERSION")
            |> File.read!()
            |> String.trim()
+           |> then(&"#{&1}+mouse")
 
   def project do
     [
