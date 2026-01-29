@@ -13,19 +13,18 @@ defmodule NervesSystemRpi4.MixProject do
     [
       app: @app,
       version: @version,
-      elixir: "~> 1.6",
+      # Because we're using OTP 27, we need to enforce Elixir 1.17 or later.
+      elixir: "~> 1.17",
       compilers: Mix.compilers() ++ [:nerves_package],
       nerves_package: nerves_package(),
       description: description(),
       package: package(),
       deps: deps(),
-      aliases: [loadconfig: [&bootstrap/1]],
-      docs: docs(),
-      preferred_cli_env: %{
-        docs: :docs,
-        "hex.build": :docs,
-        "hex.publish": :docs
-      }
+      aliases: [
+        loadconfig: [&bootstrap/1],
+        generate_fwup_conf: &generate_fwup_conf/1
+      ],
+      docs: docs()
     ]
   end
 
@@ -37,6 +36,10 @@ defmodule NervesSystemRpi4.MixProject do
     set_target()
     Application.start(:nerves_bootstrap)
     Mix.Task.run("loadconfig", args)
+  end
+
+  def cli do
+    [preferred_envs: %{docs: :docs, "hex.build": :docs, "hex.publish": :docs}]
   end
 
   defp nerves_package do
@@ -67,25 +70,23 @@ defmodule NervesSystemRpi4.MixProject do
 
   defp deps do
     [
-      {:nerves, "~> 1.5.4 or ~> 1.6.0 or ~> 1.7.15 or ~> 1.8", runtime: false},
-      {:nerves_system_br, "1.22.5", runtime: false},
-      {:nerves_toolchain_aarch64_nerves_linux_gnu, "~> 1.8.0", runtime: false},
+      {:nerves, "~> 1.11", runtime: false},
+      {:nerves_system_br, "1.33.0", runtime: false},
+      {:nerves_toolchain_aarch64_nerves_linux_gnu, "~> 13.2.0", runtime: false},
       {:nerves_system_linter, "~> 0.4", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false}
     ]
   end
 
   defp description do
-    """
-    Nerves System - Raspberry Pi 4
-    """
+    "Nerves System - Raspberry Pi 4 (64-bits)"
   end
 
   defp docs do
     [
       extras: ["README.md", "CHANGELOG.md"],
       main: "readme",
-      assets: "assets",
+      assets: %{"assets" => "./assets"},
       source_ref: "v#{@version}",
       source_url: @source_url,
       skip_undefined_reference_warnings_on: ["CHANGELOG.md"]
@@ -95,8 +96,12 @@ defmodule NervesSystemRpi4.MixProject do
   defp package do
     [
       files: package_files(),
-      licenses: ["Apache-2.0"],
-      links: %{"GitHub" => @source_url}
+      licenses: ["GPL-2.0-only", "GPL-2.0-or-later"],
+      links: %{
+        "GitHub" => @source_url,
+        "REUSE Compliance" =>
+          "https://api.reuse.software/info/github.com/nerves-project/nerves_system_rpi4"
+      }
     ]
   end
 
@@ -107,16 +112,18 @@ defmodule NervesSystemRpi4.MixProject do
       "CHANGELOG.md",
       "cmdline.txt",
       "config.txt",
-      "fwup-revert.conf",
+      "fwup-ops.conf",
+      "fwup.conf.eex",
       "fwup.conf",
-      "LICENSE",
-      "linux-5.15.defconfig",
+      "LICENSES/*",
+      "linux-6.12.defconfig",
       "mix.exs",
       "nerves_defconfig",
       "post-build.sh",
       "post-createfs.sh",
-      "ramoops.dts",
+      "ramoops-pi4-overlay.dts",
       "README.md",
+      "REUSE.toml",
       "VERSION"
     ]
   end
@@ -139,5 +146,16 @@ defmodule NervesSystemRpi4.MixProject do
     else
       System.put_env("MIX_TARGET", "target")
     end
+  end
+
+  defp generate_fwup_conf(_args) do
+    template_path = Path.join(__DIR__, "fwup.conf.eex")
+    output_path = Path.join(__DIR__, "fwup.conf")
+
+    Mix.shell().info("Generating fwup.conf")
+
+    content = EEx.eval_file(template_path)
+    File.write!(output_path, content)
+    Mix.shell().info("Successfully generated #{output_path}")
   end
 end

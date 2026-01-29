@@ -1,7 +1,8 @@
 # Raspberry Pi 4 Model B (64-bit)
 
-[![CircleCI](https://circleci.com/gh/nerves-project/nerves_system_rpi4.svg?style=svg)](https://circleci.com/gh/nerves-project/nerves_system_rpi4)
 [![Hex version](https://img.shields.io/hexpm/v/nerves_system_rpi4.svg "Hex version")](https://hex.pm/packages/nerves_system_rpi4)
+[![CI](https://github.com/nerves-project/nerves_system_rpi4/actions/workflows/ci.yml/badge.svg)](https://github.com/nerves-project/nerves_system_rpi4/actions/workflows/ci.yml)
+[![REUSE status](https://api.reuse.software/badge/github.com/nerves-project/nerves_system_rpi4)](https://api.reuse.software/info/github.com/nerves-project/nerves_system_rpi4)
 
 This is the base Nerves System configuration for the Raspberry Pi 4 Model B.
 
@@ -9,23 +10,23 @@ This is the base Nerves System configuration for the Raspberry Pi 4 Model B.
 <br><sup>[Michael Henzler / Wikimedia Commons / CC BY-SA
 4.0](https://en.wikipedia.org/wiki/File:Raspberry_Pi_4_Model_B_-_Top.jpg)</sup>
 
-| Feature              | Description                     |
-| -------------------- | ------------------------------- |
+| Feature              | Description                      |
+| -------------------- | -------------------------------- |
 | CPU                  | 1.5 GHz quad-core Cortex-A72 (64-bit mode) |
-| Memory               | 1 GB, 2 GB, 4 GB DRAM           |
-| Storage              | MicroSD                         |
-| Linux kernel         | 5.10 w/ Raspberry Pi patches    |
+| Memory               | 1 GB, 2 GB, 4 GB DRAM            |
+| Storage              | MicroSD                          |
+| Linux kernel         | 6.12 w/ Raspberry Pi patches     |
 | IEx terminal         | HDMI and USB keyboard (can be changed to UART) |
 | GPIO, I2C, SPI       | Yes - [Elixir Circuits](https://github.com/elixir-circuits) |
-| ADC                  | No                              |
-| PWM                  | Yes, but no Elixir support      |
-| UART                 | 1 available - `ttyS0`           |
-| Display              | HDMI or 7" RPi Touchscreen      |
-| Camera               | Untested                        |
-| Ethernet             | Yes                             |
-| WiFi                 | Yes - VintageNet                |
-| Bluetooth            | Untested                        |
-| Audio                | HDMI/Stereo out                 |
+| ADC                  | No                               |
+| PWM                  | Yes, but no Elixir support       |
+| UART                 | 1 available - `ttyS0`            |
+| Display              | HDMI or 7" RPi Touchscreen       |
+| Camera               | Official RPi Cameras (libcamera) |
+| Ethernet             | Yes                              |
+| WiFi                 | Yes - VintageNet                 |
+| Bluetooth            | Untested                         |
+| Audio                | HDMI/Stereo out                  |
 
 ## Using
 
@@ -42,6 +43,24 @@ systems](https://hexdocs.pm/nerves/customizing-systems.html).
 
 The base image includes drivers for the onboard Raspberry Pi 4 wifi module
 (`brcmfmac` driver).
+
+## Camera
+
+This system supports the official Raspberry Pi camera modules via
+[`libcamera`](https://libcamera.org/). The `libcamera` applications are included so it's
+possible to replicate many of the examples in the official [Raspberry Pi Camera
+Documentation](https://www.raspberrypi.com/documentation/computers/camera_software.html).
+
+Here's an example commandline to run:
+
+```elixir
+cmd("libcamera-jpeg -n -v -o /data/test.jpeg")
+```
+
+On success, you'll get an image in `/data` that you can copy off with `sftp`.
+
+Since `libcamera` is being used instead of MMAL, the Elixir
+[picam](https://hex.pm/packages/picam) library won't work.
 
 ## Audio
 
