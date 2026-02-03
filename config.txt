@@ -66,6 +66,10 @@ enable_uart=1
 # Comment this in or modify to enable PWM
 # dtoverlay=pwm
 
+# kernel `5.16`以降では`/boot/firmware/config.txt`に以下の設定を記述し、dtoverlayを設定する必要があります。
+# ref. https://github.com/rt-net/RaspberryPiMouse/blob/e9f692466f45955088cf3f9068d6ba32a6cb60a3/README.md#L105
+dtoverlay=anyspi:spi0-0,dev="microchip,mcp3204",speed=1000000
+
 [cm4]
 # Raspberry Pi CM4-only settings
 
